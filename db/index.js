@@ -70,16 +70,19 @@ async function getUserById(userId) {
     FROM users
     WHERE id=${ userId };
     `)
-
+    console.log(user);
     if(!user) {
       return null
     }
     user.posts = await getPostsByUser(userId);
+    console.log(user.posts);
     return user;
+
   } catch (error) {
     throw error;
   }
 }
+getUserById(1);
 
 async function createPost({
   authorId,
@@ -140,10 +143,10 @@ async function updatePost(postId, fields = {}) {
       // delete any post_tags from the database which aren't in that tagList
       await client.query(
           `
-    DELETE FROM post_tags
-    WHERE "tagId"
-    NOT IN (${tagListIdString})
-    AND "postId"=$1;
+      DELETE FROM post_tags
+      WHERE "tagId"
+      NOT IN (${tagListIdString})
+      AND "postId"=$1;
   `,
           [postId]
       );
@@ -188,7 +191,7 @@ async function getPostsByUser(userId) {
   ));
 
     return posts;
-} catch (error) {
+  } catch (error) {
     throw error;
   }
 }
@@ -255,9 +258,9 @@ async function getPostById(postId){
     FROM posts
     WHERE id=$1;
     `, [postId]);
-
+    console.log('>>>>>post', post);
     const { rows: tags } = await client.query(`
-      SELECT tags.*
+      SELECT *
       FROM tags
       JOIN post_tags ON tags.id=post_tags."tagId"
       WHERE post_tags."postId"=$1;
@@ -310,6 +313,20 @@ async function getAllTags() {
   }
 }
 
+async function getUserByUsername(username) {
+  try {
+    const { rows: [user]} = await client.query(`
+    SELECT *
+    FROM users
+    WHERE username=$1
+    `, [username]);
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+
 //EXPORTS
 module.exports = {
   client,
@@ -326,6 +343,7 @@ module.exports = {
   addTagsToPost,
   getPostById,
   getPostsByTagName,
-  getAllTags
+  getAllTags,
+  getUserByUsername
 }
 
