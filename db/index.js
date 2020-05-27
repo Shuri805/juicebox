@@ -98,8 +98,12 @@ async function createPost({
     `, [authorId, title, content]);
 
     const tagList = await createTags(tags);
+    console.log('>>post?', post)
+    console.log('>>>tagList', tagList);
 
-    return await addTagsToPost(post.id, tagList);
+    const postWithTags = await addTagsToPost(post.id, tagList);
+    console.log('>>>postWithTags', postWithTags);
+    return postWithTags;
   } catch (error) {
     throw error;
   }
@@ -243,7 +247,7 @@ async function addTagsToPost(postId, tagList){
     const createPostTagPromises = tagList.map(tag=> createPostTag(postId, tag.id)
     );
 
-    await Promise.all(createPostTagPromise)
+    await Promise.all(createPostTagPromises)
 
     return await getPostById(postId);
   } catch (error) {
